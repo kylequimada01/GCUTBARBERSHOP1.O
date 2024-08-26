@@ -1,6 +1,8 @@
 const express = require('express');
 const authRoute = require('./auth.route');
 const userRoute = require('./user.route');
+const serviceRoute = require('./service.route'); // Import the service route
+const serviceCategoryRoute = require('./serviceCategory.route'); // Import the service category route
 const docsRoute = require('./docs.route');
 const config = require('../../config/config');
 
@@ -14,6 +16,14 @@ const defaultRoutes = [
   {
     path: '/users',
     route: userRoute,
+  },
+  {
+    path: '/services',
+    route: serviceRoute, // Add service route to default routes
+  },
+  {
+    path: '/service-categories',
+    route: serviceCategoryRoute, // Add service category route to default routes
   },
 ];
 

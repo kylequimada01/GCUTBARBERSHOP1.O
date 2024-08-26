@@ -39,6 +39,37 @@ components:
         refresh:
           $ref: '#/components/schemas/Token'
 
+    ServiceCategory:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+      example:
+        id: 7753
+        name: Haircuts
+
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        price:
+          type: number
+        description:
+          type: string
+        category:
+          type: string
+      example:
+        id: 2a58
+        title: Classic Haircut
+        price: 15
+        description: A timeless haircut that suits all occasions, providing a clean and polished look.
+        category: 7753
+
     Error:
       type: object
       properties:
@@ -57,6 +88,7 @@ components:
           example:
             code: 400
             message: Email already taken
+
     Unauthorized:
       description: Unauthorized
       content:
@@ -66,6 +98,7 @@ components:
           example:
             code: 401
             message: Please authenticate
+
     Forbidden:
       description: Forbidden
       content:
@@ -75,6 +108,7 @@ components:
           example:
             code: 403
             message: Forbidden
+
     NotFound:
       description: Not found
       content:
@@ -84,6 +118,16 @@ components:
           example:
             code: 404
             message: Not found
+
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 400
+            message: Invalid input
 
   securitySchemes:
     bearerAuth:
