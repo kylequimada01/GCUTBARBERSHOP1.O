@@ -1,5 +1,6 @@
 const allRoles = {
   user: [],
+  barber: [],
   admin: ['getUsers', 'manageUsers'],
 };
 
