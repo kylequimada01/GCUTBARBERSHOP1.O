@@ -39,6 +39,34 @@ components:
         refresh:
           $ref: '#/components/schemas/Token'
 
+    Barber:
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        title:
+          type: string
+        image:
+          type: string
+          format: uri
+        selectedUserId:
+          type: string
+        role:
+          type: string
+          enum: [user, barber]
+      example:
+        id: '6943'
+        firstName: John
+        lastName: Doe
+        title: Master Barber
+        image: https://www.keydesign-themes.com/etalon/barber/wp-content/uploads/sites/26/2020/12/barber1.jpg
+        selectedUserId: '6943'
+        role: barber
+
     ServiceCategory:
       type: object
       properties:

@@ -68,7 +68,8 @@ const userSchema = mongoose.Schema(
       default: null,
     },
     selectedUserId: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       default: null,
     },
     isEmailVerified: {

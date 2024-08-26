@@ -60,7 +60,20 @@ const updateUserById = async (userId, updateBody) => {
   if (updateBody.email && (await User.isEmailTaken(updateBody.email, userId))) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Email already taken');
   }
-  Object.assign(user, updateBody);
+
+  // Create a new object to apply the updates
+  const updatedUser = { ...updateBody };
+
+  // Handle role change to barber or back to user
+  if (updatedUser.role === 'barber') {
+    updatedUser.selectedUserId = userId; // Ensuring selectedUserId is set for barbers
+  } else if (updatedUser.role === 'user') {
+    updatedUser.selectedUserId = null; // Resetting fields when user is unassigned from barber
+    updatedUser.title = null;
+    updatedUser.image = null;
+  }
+
+  Object.assign(user, updatedUser);
   await user.save();
   return user;
 };
