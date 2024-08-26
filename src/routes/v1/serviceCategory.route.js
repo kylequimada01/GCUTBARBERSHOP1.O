@@ -165,13 +165,24 @@ module.exports = router;
  *         schema:
  *           type: string
  *         description: Service category ID
- *     responses:
- *       "204":
- *         description: No content
- *       "401":
- *         $ref: '#/components/responses/Unauthorized'
- *       "403":
- *         $ref: '#/components/responses/Forbidden'
- *       "404":
- *         $ref: '#/components/responses/NotFound'
+*     responses:
+*       "204":
+*         description: No content
+*       "400":
+*         description: Bad Request - Cannot delete a service category that has associated services.
+*         content:
+*           application/json:
+*             schema:
+*               type: object
+*               properties:
+*                 message:
+*                   type: string
+*                   example: Cannot delete service category with associated services. Please delete the services first.
+*       "401":
+*         $ref: '#/components/responses/Unauthorized'
+*       "403":
+*         $ref: '#/components/responses/Forbidden'
+*       "404":
+*         $ref: '#/components/responses/NotFound'
+
  */

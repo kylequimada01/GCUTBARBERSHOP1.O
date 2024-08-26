@@ -27,10 +27,13 @@ const updateServiceCategory = catchAsync(async (req, res) => {
 });
 
 const deleteServiceCategory = catchAsync(async (req, res) => {
-  await serviceCategoryService.deleteServiceCategoryById(req.params.categoryId);
-  res.status(httpStatus.NO_CONTENT).send();
+  try {
+    await serviceCategoryService.deleteServiceCategoryById(req.params.categoryId);
+    res.status(httpStatus.NO_CONTENT).send();
+  } catch (error) {
+    res.status(httpStatus.BAD_REQUEST).send({ message: error.message });
+  }
 });
-
 module.exports = {
   createServiceCategory,
   getServiceCategories,

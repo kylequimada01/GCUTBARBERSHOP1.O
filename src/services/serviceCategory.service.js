@@ -1,4 +1,5 @@
 const { ServiceCategory } = require('../models');
+const { Service } = require('../models');
 
 const createServiceCategory = async (serviceCategoryBody) => {
   return ServiceCategory.create(serviceCategoryBody);
@@ -27,6 +28,13 @@ const deleteServiceCategoryById = async (categoryId) => {
   if (!serviceCategory) {
     throw new Error('Service Category not found');
   }
+
+  // Check if there are any services associated with this category
+  const associatedServices = await Service.find({ category: categoryId });
+  if (associatedServices.length > 0) {
+    throw new Error('Cannot delete service category with associated services. Please delete the services first.');
+  }
+
   await serviceCategory.remove();
   return serviceCategory;
 };
