@@ -29,8 +29,8 @@ const unassignBarber = catchAsync(async (req, res) => {
 
   const updatedUser = await userService.updateUserById(userId, {
     role: 'user',
-    title: null,
-    image: null,
+    title: '',
+    image: '',
     selectedUserId: null,
   });
 

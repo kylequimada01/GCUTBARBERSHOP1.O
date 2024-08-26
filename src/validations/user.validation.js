@@ -42,6 +42,10 @@ const updateUser = {
       firstName: Joi.string(),
       lastName: Joi.string(),
       contactNumber: Joi.string(),
+      role: Joi.string().valid('user', 'admin', 'barber'),
+      title: Joi.string(),
+      image: Joi.string().uri(),
+      selectedUserId: Joi.string(),
     })
     .min(1),
 };

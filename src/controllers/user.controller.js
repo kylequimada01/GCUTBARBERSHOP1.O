@@ -25,8 +25,9 @@ const getUser = catchAsync(async (req, res) => {
 });
 
 const getBarbers = catchAsync(async (req, res) => {
-  const barbers = await userService.queryUsers({ role: 'barber' }, {});
-  res.send(barbers.results);
+  // Ensure you query the barbers with the correct filter and return the result in the expected format
+  const result = await userService.queryUsers({ role: 'barber' }, {});
+  res.send(result); // Directly sending the query result which includes pagination info
 });
 
 const updateUser = catchAsync(async (req, res) => {

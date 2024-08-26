@@ -7,7 +7,8 @@ const auth = require('../../middlewares/auth');
 
 const router = express.Router();
 
-router.route('/barbers').get(userController.getBarbers);
+// Updated the path to '/v1/barbers' to match the API request
+router.route('/').get(userController.getBarbers);
 
 router
   .route('/:userId/assign')
