@@ -5,7 +5,13 @@ const register = {
   body: Joi.object().keys({
     email: Joi.string().required().email(),
     password: Joi.string().required().custom(password),
-    name: Joi.string().required(),
+    firstName: Joi.string().required(),
+    lastName: Joi.string().required(),
+    contactNumber: Joi.string().required(),
+    role: Joi.string().valid('user', 'admin', 'barber').default('user'),
+    title: Joi.string().optional(),
+    image: Joi.string().optional().uri(),
+    selectedUserId: Joi.string().optional(),
   }),
 };
 

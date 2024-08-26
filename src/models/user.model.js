@@ -28,6 +28,13 @@ const userSchema = mongoose.Schema(
         }
       },
     },
+    contactNumber: {
+      type: String,
+      required: true,
+      trim: true,
+      minlength: 10,
+      maxlength: 10,
+    },
     password: {
       type: String,
       required: true,
@@ -44,6 +51,25 @@ const userSchema = mongoose.Schema(
       type: String,
       enum: roles,
       default: 'user',
+    },
+    title: {
+      type: String,
+      trim: true,
+      default: null,
+    },
+    image: {
+      type: String,
+      trim: true,
+      validate(value) {
+        if (value && !validator.isURL(value)) {
+          throw new Error('Invalid image URL');
+        }
+      },
+      default: null,
+    },
+    selectedUserId: {
+      type: String,
+      default: null,
     },
     isEmailVerified: {
       type: Boolean,
