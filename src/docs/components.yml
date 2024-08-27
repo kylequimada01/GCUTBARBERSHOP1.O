@@ -146,6 +146,53 @@ components:
         userId: '8690'
         status: Upcoming
 
+    Review:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+          description: ID of the user who left the review
+        name:
+          type: string
+        barberId:
+          type: string
+          description: ID of the barber the review is about
+        serviceType:
+          type: string
+          description: ID of the service type the review is for
+        appointmentDateTime:
+          type: string
+          format: date-time
+        date:
+          type: string
+          format: date-time
+          description: Date the review was created
+        appointmentId:
+          type: string
+          description: ID of the related appointment
+        rating:
+          type: integer
+          minimum: 1
+          maximum: 5
+        title:
+          type: string
+        text:
+          type: string
+      example:
+        id: 'c834'
+        userId: '8690'
+        name: 'Стефан Гогов'
+        barberId: '6943'
+        serviceType: '049c'
+        appointmentDateTime: '2024-08-19T09:00:49.054Z'
+        date: '2024-08-20T08:07:37.767Z'
+        appointmentId: 'ed49'
+        rating: 3
+        title: 'Great Experience'
+        text: 'The haircut was good, but could be better.'
+
     Status:
       type: object
       properties:

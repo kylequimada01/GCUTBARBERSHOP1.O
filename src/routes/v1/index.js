@@ -5,6 +5,7 @@ const userRoute = require('./user.route');
 const barberRoute = require('./barber.route');
 const serviceRoute = require('./service.route'); // Import the service route
 const serviceCategoryRoute = require('./serviceCategory.route'); // Import the service category route
+const reviewRoute = require('./review.route');
 const docsRoute = require('./docs.route');
 const config = require('../../config/config');
 
@@ -25,15 +26,19 @@ const defaultRoutes = [
   },
   {
     path: '/services',
-    route: serviceRoute, // Add service route to default routes
+    route: serviceRoute,
+  },
+  {
+    path: '/service-categories',
+    route: serviceCategoryRoute,
   },
   {
     path: '/appointments',
     route: appointmentRoute,
   },
   {
-    path: '/service-categories',
-    route: serviceCategoryRoute, // Add service category route to default routes
+    path: '/reviews',
+    route: reviewRoute,
   },
 ];
 
