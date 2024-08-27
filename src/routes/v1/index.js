@@ -1,4 +1,5 @@
 const express = require('express');
+const appointmentRoute = require('./appointment.route');
 const authRoute = require('./auth.route');
 const userRoute = require('./user.route');
 const barberRoute = require('./barber.route');
@@ -25,6 +26,10 @@ const defaultRoutes = [
   {
     path: '/services',
     route: serviceRoute, // Add service route to default routes
+  },
+  {
+    path: '/appointments',
+    route: appointmentRoute,
   },
   {
     path: '/service-categories',

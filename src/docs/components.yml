@@ -98,6 +98,66 @@ components:
         description: A timeless haircut that suits all occasions, providing a clean and polished look.
         category: 7753
 
+    Appointment:
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        contactNumber:
+          type: string
+        email:
+          type: string
+          format: email
+        preferredHairdresser:
+          type: string
+          description: ID of the preferred hairdresser (Barber ID)
+        serviceCategory:
+          type: string
+          description: ID of the service category
+        serviceType:
+          type: string
+          description: ID of the service type
+        appointmentDateTime:
+          type: string
+          format: date-time
+        additionalNotes:
+          type: string
+        userId:
+          type: string
+          description: ID of the user who booked the appointment
+        status:
+          type: string
+          enum: [Upcoming, Past, Cancelled]
+      example:
+        id: dc42
+        firstName: Stefan
+        lastName: Gogov
+        contactNumber: '0894703251'
+        email: splay333@gmail.com
+        preferredHairdresser: '5596'
+        serviceCategory: '7753'
+        serviceType: '06e0'
+        appointmentDateTime: '2024-08-21T12:00:07.199Z'
+        additionalNotes: ''
+        userId: '8690'
+        status: Upcoming
+
+    Status:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          enum: [Upcoming, Past, Cancelled]
+      example:
+        id: '1'
+        name: Upcoming
+
     Error:
       type: object
       properties:
