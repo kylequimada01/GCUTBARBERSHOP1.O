@@ -17,10 +17,25 @@ const getUsers = catchAsync(async (req, res) => {
 });
 
 const getUser = catchAsync(async (req, res) => {
+  // Fetch the user by ID
   const user = await userService.getUserById(req.params.userId);
+
+  // Check if user is not found
   if (!user) {
     throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
   }
+
+  // If the user is a barber, allow public access
+  if (user.role === 'barber') {
+    return res.send(user);
+  }
+
+  // Check if the requesting user has the necessary permissions
+  if (req.user.role !== 'admin' && req.user.id !== req.params.userId) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
+
+  // If the user has the required permissions or is accessing their own profile, return the user data
   res.send(user);
 });
 

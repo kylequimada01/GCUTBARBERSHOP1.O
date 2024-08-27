@@ -33,8 +33,23 @@ const queryUsers = async (filter, options) => {
  * @param {ObjectId} id
  * @returns {Promise<User>}
  */
-const getUserById = async (id) => {
-  return User.findById(id);
+const getUserById = async (id, requesterRole = 'user') => {
+  const user = await User.findById(id);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  // If the user is a barber, allow public access
+  if (user.role === 'barber') {
+    return user;
+  }
+
+  // If the requester is not an admin or the user themselves, restrict access
+  if (requesterRole !== 'admin' && String(user._id) !== id) {
+    throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
+  }
+
+  return user;
 };
 
 /**
