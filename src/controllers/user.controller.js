@@ -45,6 +45,26 @@ const getBarbers = catchAsync(async (req, res) => {
   res.send(result); // Directly sending the query result which includes pagination info
 });
 
+const changePassword = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const { currentPassword, newPassword } = req.body;
+
+  const user = await userService.getUserById(userId);
+  if (!user) {
+    throw new ApiError(httpStatus.NOT_FOUND, 'User not found');
+  }
+
+  const isMatch = await user.isPasswordMatch(currentPassword);
+  if (!isMatch) {
+    throw new ApiError(httpStatus.UNAUTHORIZED, 'Incorrect current password');
+  }
+
+  user.password = newPassword;
+  await user.save();
+
+  res.status(httpStatus.OK).send({ message: 'Password changed successfully' });
+});
+
 const updateUser = catchAsync(async (req, res) => {
   const user = await userService.updateUserById(req.params.userId, req.body);
   res.send(user);
@@ -60,6 +80,7 @@ module.exports = {
   getUsers,
   getUser,
   getBarbers,
+  changePassword,
   updateUser,
   deleteUser,
 };

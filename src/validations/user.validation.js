@@ -50,6 +50,13 @@ const updateUser = {
     .min(1),
 };
 
+const changePassword = {
+  body: Joi.object().keys({
+    currentPassword: Joi.string().required(),
+    newPassword: Joi.string().min(8).required(),
+  }),
+};
+
 const deleteUser = {
   params: Joi.object().keys({
     userId: Joi.string().custom(objectId),
@@ -61,5 +68,6 @@ module.exports = {
   getUsers,
   getUser,
   updateUser,
+  changePassword,
   deleteUser,
 };

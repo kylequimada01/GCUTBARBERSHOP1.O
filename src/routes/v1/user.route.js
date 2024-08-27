@@ -18,6 +18,8 @@ router
   .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser)
   .delete(auth('manageUsers'), validate(userValidation.deleteUser), userController.deleteUser);
 
+router.route('/:userId/password').patch(auth(), validate(userValidation.changePassword), userController.changePassword);
+
 module.exports = router;
 
 /**
@@ -115,7 +117,7 @@ module.exports = router;
  *         schema:
  *           type: integer
  *           minimum: 1
- *           default: 1
+ *         default: 1
  *         description: Page number
  *     responses:
  *       "200":
@@ -244,6 +246,57 @@ module.exports = router;
  *     responses:
  *       "200":
  *         description: No content
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *       "404":
+ *         $ref: '#/components/responses/NotFound'
+ */
+
+/**
+ * @swagger
+ * /users/{id}/password:
+ *   patch:
+ *     summary: Change user password
+ *     description: Logged in users can change only their own password.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User id
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 format: password
+ *                 description: The current password of the user
+ *               newPassword:
+ *                 type: string
+ *                 format: password
+ *                 minLength: 8
+ *                 description: New password for the user
+ *             example:
+ *               currentPassword: oldPassword123
+ *               newPassword: newPassword456
+ *     responses:
+ *       "200":
+ *         description: OK
+ *       "400":
+ *         $ref: '#/components/responses/BadRequest'
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":
