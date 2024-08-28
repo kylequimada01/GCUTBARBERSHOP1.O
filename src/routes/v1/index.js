@@ -6,6 +6,7 @@ const barberRoute = require('./barber.route');
 const serviceRoute = require('./service.route'); // Import the service route
 const serviceCategoryRoute = require('./serviceCategory.route'); // Import the service category route
 const reviewRoute = require('./review.route');
+const healthController = require('../../controllers/health.controller');
 const docsRoute = require('./docs.route');
 const config = require('../../config/config');
 
@@ -39,6 +40,10 @@ const defaultRoutes = [
   {
     path: '/reviews',
     route: reviewRoute,
+  },
+  {
+    path: '/health',
+    route: healthController.healthCheck,
   },
 ];
 
