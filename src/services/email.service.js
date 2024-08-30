@@ -60,47 +60,53 @@ If you did not create an account, then ignore this email.`;
 
 const formatDateTime = (dateTime) => dayjs(dateTime).format('dddd, MMMM D, YYYY h:mm A');
 
-const sendAppointmentConfirmationEmail = async (to, appointmentDetails, barberDetails, serviceDetails) => {
-  const subject = 'Appointment Confirmation';
+const generateAppointmentEmailHtml = (type, appointmentDetails, barberDetails, serviceDetails) => {
   const formattedDateTime = formatDateTime(appointmentDetails.appointmentDateTime);
 
-  const html = `
+  const emailTypes = {
+    confirmation: {
+      title: 'Appointment Confirmation - Barbershop',
+      message: 'Your appointment has been confirmed with the following details:',
+    },
+    update: {
+      title: 'Appointment Update - Barbershop',
+      message: 'Your appointment has been updated with the following details:',
+    },
+    cancellation: {
+      title: 'Appointment Cancellation - Barbershop',
+      message:
+        'We regret to inform you that your appointment has been cancelled. Here are the details of the cancelled appointment:',
+    },
+  };
+
+  const { title, message } = emailTypes[type];
+
+  return `
     <div style="font-family: Arial, sans-serif; color: #333;">
-      <h2>Appointment Confirmation</h2>
+      <h2>${title}</h2>
       <p>Dear ${appointmentDetails.firstName} ${appointmentDetails.lastName},</p>
-      <p>Your appointment has been confirmed with the following details:</p>
+      <p>${message}</p>
       <ul>
         <li><strong>Date & Time:</strong> ${formattedDateTime}</li>
         <li><strong>Barber:</strong> ${barberDetails.firstName} ${barberDetails.lastName}</li>
         <li><strong>Service:</strong> ${serviceDetails.title}</li>
         <li><strong>Contact Number:</strong> ${appointmentDetails.contactNumber}</li>
       </ul>
-      <p>Looking forward to seeing you!</p>
+      ${
+        type !== 'cancellation'
+          ? `<a href="https://appointment-management-fe.vercel.app/appointments" style="display: inline-block; padding: 10px 20px; background-color: #AF8447; color: #fff; text-decoration: none;">View Appointments</a>`
+          : ''
+      }
+      <p>${
+        type === 'cancellation' ? 'We hope to see you soon for a rescheduled appointment.' : 'Looking forward to seeing you!'
+      }</p>
     </div>
   `;
-
-  await sendEmail(to, subject, html);
 };
 
-const sendAppointmentCancellationEmail = async (to, appointmentDetails, barberDetails, serviceDetails) => {
-  const subject = 'Appointment Cancellation';
-  const formattedDateTime = formatDateTime(appointmentDetails.appointmentDateTime);
-
-  const html = `
-    <div style="font-family: Arial, sans-serif; color: #333;">
-      <h2>Appointment Cancellation</h2>
-      <p>Dear ${appointmentDetails.firstName} ${appointmentDetails.lastName},</p>
-      <p>We regret to inform you that your appointment has been cancelled. Here are the details of the cancelled appointment:</p>
-      <ul>
-        <li><strong>Date & Time:</strong> ${formattedDateTime}</li>
-        <li><strong>Barber:</strong> ${barberDetails.firstName} ${barberDetails.lastName}</li>
-        <li><strong>Service:</strong> ${serviceDetails.title}</li>
-        <li><strong>Contact Number:</strong> ${appointmentDetails.contactNumber}</li>
-      </ul>
-      <p>We hope to see you soon for a rescheduled appointment.</p>
-    </div>
-  `;
-
+const sendAppointmentEmail = async (type, to, appointmentDetails, barberDetails, serviceDetails) => {
+  const subject = `Appointment ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+  const html = generateAppointmentEmailHtml(type, appointmentDetails, barberDetails, serviceDetails);
   await sendEmail(to, subject, html);
 };
 
@@ -108,7 +114,6 @@ module.exports = {
   transport,
   sendEmail,
   sendResetPasswordEmail,
-  sendAppointmentCancellationEmail,
-  sendAppointmentConfirmationEmail,
+  sendAppointmentEmail,
   sendVerificationEmail,
 };

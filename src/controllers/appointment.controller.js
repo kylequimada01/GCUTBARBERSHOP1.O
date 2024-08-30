@@ -13,7 +13,9 @@ const createAppointment = catchAsync(async (req, res) => {
 
   // Send confirmation email
   if (appointment.email) {
-    await emailService.sendAppointmentConfirmationEmail(appointment.email, appointment, barberDetails, serviceDetails);
+    await emailService.sendAppointmentEmail('confirmation', appointment.email, appointment, barberDetails, serviceDetails);
+  } else {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email address is required for appointment confirmations');
   }
 
   res.status(httpStatus.CREATED).send(appointment);
@@ -41,23 +43,19 @@ const updateAppointment = catchAsync(async (req, res) => {
 
   if (req.body.status === 'Cancelled' && appointment.email) {
     // Send cancellation email
-    await emailService.sendAppointmentCancellationEmail(appointment.email, appointment, barberDetails, serviceDetails);
+    await emailService.sendAppointmentEmail('cancellation', appointment.email, appointment, barberDetails, serviceDetails);
+  } else if (appointment.email) {
+    // Send update email if appointment status is not cancelled
+    await emailService.sendAppointmentEmail('update', appointment.email, appointment, barberDetails, serviceDetails);
+  } else {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Email address is required for appointment updates');
   }
+
   res.send(appointment);
 });
 
 const deleteAppointment = catchAsync(async (req, res) => {
-  const appointment = await appointmentService.deleteAppointmentById(req.params.appointmentId);
-
-  // Fetch the barber and service details
-  const barberDetails = await userService.getUserById(appointment.preferredHairdresser);
-  const serviceDetails = await serviceService.getServiceById(appointment.serviceType);
-
-  // Send cancellation email
-  if (appointment.email) {
-    await emailService.sendAppointmentCancellationEmail(appointment.email, appointment, barberDetails, serviceDetails);
-  }
-
+  await appointmentService.deleteAppointmentById(req.params.appointmentId);
   res.status(httpStatus.NO_CONTENT).send();
 });
 

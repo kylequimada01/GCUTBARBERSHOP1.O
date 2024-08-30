@@ -30,13 +30,15 @@ const getUser = catchAsync(async (req, res) => {
     return res.send(user);
   }
 
-  // Ensure that req.user is defined before accessing its properties
-  if (!req.user) {
+  // Ensure that either req.user or user object itself can be used to authorize
+  const requester = req.user || user;
+
+  if (!requester) {
     throw new ApiError(httpStatus.UNAUTHORIZED, 'Unauthorized access');
   }
 
   // Check if the requesting user has the necessary permissions
-  if (req.user.role !== 'admin' && req.user.id !== req.params.userId) {
+  if (requester.role !== 'admin' && requester.id !== req.params.userId) {
     throw new ApiError(httpStatus.FORBIDDEN, 'Forbidden');
   }
 
