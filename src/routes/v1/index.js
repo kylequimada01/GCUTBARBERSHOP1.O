@@ -2,6 +2,7 @@ const express = require('express');
 const appointmentRoute = require('./appointment.route');
 const authRoute = require('./auth.route');
 const userRoute = require('./user.route');
+const notificationRoute = require('./notification.route');
 const barberRoute = require('./barber.route');
 const serviceRoute = require('./service.route'); // Import the service route
 const serviceCategoryRoute = require('./serviceCategory.route'); // Import the service category route
@@ -20,6 +21,10 @@ const defaultRoutes = [
   {
     path: '/users',
     route: userRoute,
+  },
+  {
+    path: '/notifications',
+    route: notificationRoute,
   },
   {
     path: '/barbers',

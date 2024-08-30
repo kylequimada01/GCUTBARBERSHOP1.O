@@ -1,4 +1,5 @@
 const nodemailer = require('nodemailer');
+const dayjs = require('dayjs');
 const config = require('../config/config');
 const logger = require('../config/logger');
 
@@ -57,9 +58,57 @@ If you did not create an account, then ignore this email.`;
   await sendEmail(to, subject, text);
 };
 
+const formatDateTime = (dateTime) => dayjs(dateTime).format('dddd, MMMM D, YYYY h:mm A');
+
+const sendAppointmentConfirmationEmail = async (to, appointmentDetails, barberDetails, serviceDetails) => {
+  const subject = 'Appointment Confirmation';
+  const formattedDateTime = formatDateTime(appointmentDetails.appointmentDateTime);
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #333;">
+      <h2>Appointment Confirmation</h2>
+      <p>Dear ${appointmentDetails.firstName} ${appointmentDetails.lastName},</p>
+      <p>Your appointment has been confirmed with the following details:</p>
+      <ul>
+        <li><strong>Date & Time:</strong> ${formattedDateTime}</li>
+        <li><strong>Barber:</strong> ${barberDetails.firstName} ${barberDetails.lastName}</li>
+        <li><strong>Service:</strong> ${serviceDetails.title}</li>
+        <li><strong>Contact Number:</strong> ${appointmentDetails.contactNumber}</li>
+      </ul>
+      <p>Looking forward to seeing you!</p>
+    </div>
+  `;
+
+  await sendEmail(to, subject, html);
+};
+
+const sendAppointmentCancellationEmail = async (to, appointmentDetails, barberDetails, serviceDetails) => {
+  const subject = 'Appointment Cancellation';
+  const formattedDateTime = formatDateTime(appointmentDetails.appointmentDateTime);
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; color: #333;">
+      <h2>Appointment Cancellation</h2>
+      <p>Dear ${appointmentDetails.firstName} ${appointmentDetails.lastName},</p>
+      <p>We regret to inform you that your appointment has been cancelled. Here are the details of the cancelled appointment:</p>
+      <ul>
+        <li><strong>Date & Time:</strong> ${formattedDateTime}</li>
+        <li><strong>Barber:</strong> ${barberDetails.firstName} ${barberDetails.lastName}</li>
+        <li><strong>Service:</strong> ${serviceDetails.title}</li>
+        <li><strong>Contact Number:</strong> ${appointmentDetails.contactNumber}</li>
+      </ul>
+      <p>We hope to see you soon for a rescheduled appointment.</p>
+    </div>
+  `;
+
+  await sendEmail(to, subject, html);
+};
+
 module.exports = {
   transport,
   sendEmail,
   sendResetPasswordEmail,
+  sendAppointmentCancellationEmail,
+  sendAppointmentConfirmationEmail,
   sendVerificationEmail,
 };
