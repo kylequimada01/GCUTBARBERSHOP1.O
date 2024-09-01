@@ -1,24 +1,25 @@
-// src/controllers/notification.controller.js
-
 const catchAsync = require('../utils/catchAsync');
-const { sendAppointmentNotification } = require('../services/email.service');
-const { sendPushNotification } = require('../services/push.service');
+const { sendAppointmentEmail } = require('../services/email.service');
+const { sendPushNotification, prepareNotificationPayload } = require('../services/push.service');
 const { getUserById } = require('../services/user.service');
 
-const sendAppointmentNotificationToUser = catchAsync(async (req, res) => {
-  const { userId, title, message } = req.body;
+const sendAppointmentNotificationToUser = catchAsync(async (params) => {
+  const { userId, type, appointmentDetails, barberDetails, serviceDetails, notificationType } = params;
   const user = await getUserById(userId);
 
+  // console.log(`Sending notification to user: ${userId}`);
+  // console.log(`User email notifications enabled: ${user.emailNotificationsEnabled}`);
+  // console.log(`User push notifications enabled: ${user.pushNotificationsEnabled}`);
+  // console.log(`User push subscription: ${user.pushSubscription}`);
+
   if (user.emailNotificationsEnabled) {
-    await sendAppointmentNotification(user.email, title, message);
+    await sendAppointmentEmail(notificationType, user.email, appointmentDetails, barberDetails, serviceDetails);
   }
 
   if (user.pushNotificationsEnabled && user.pushSubscription) {
-    const payload = JSON.stringify({ title, message });
+    const payload = prepareNotificationPayload(type, appointmentDetails);
     await sendPushNotification(user.pushSubscription, payload);
   }
-
-  res.status(200).send({ message: 'Notification sent successfully' });
 });
 
 module.exports = {

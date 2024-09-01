@@ -2,21 +2,23 @@ const httpStatus = require('http-status');
 const catchAsync = require('../utils/catchAsync');
 const ApiError = require('../utils/ApiError');
 
-const { appointmentService, emailService, userService, serviceService } = require('../services');
+const { appointmentService, userService, serviceService } = require('../services');
+const { sendAppointmentNotificationToUser } = require('./notification.controller');
 
 const createAppointment = catchAsync(async (req, res) => {
   const appointment = await appointmentService.createAppointment(req.body);
 
-  // Fetch the barber and service details
   const barberDetails = await userService.getUserById(appointment.preferredHairdresser);
   const serviceDetails = await serviceService.getServiceById(appointment.serviceType);
 
-  // Send confirmation email
-  if (appointment.email) {
-    await emailService.sendAppointmentEmail('confirmation', appointment.email, appointment, barberDetails, serviceDetails);
-  } else {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email address is required for appointment confirmations');
-  }
+  await sendAppointmentNotificationToUser({
+    userId: appointment.userId,
+    type: 'Confirmation',
+    appointmentDetails: appointment,
+    barberDetails,
+    serviceDetails,
+    notificationType: 'confirmation',
+  });
 
   res.status(httpStatus.CREATED).send(appointment);
 });
@@ -37,19 +39,28 @@ const getAppointment = catchAsync(async (req, res) => {
 const updateAppointment = catchAsync(async (req, res) => {
   const appointment = await appointmentService.updateAppointmentById(req.params.appointmentId, req.body);
 
-  // Fetch the barber and service details
   const barberDetails = await userService.getUserById(appointment.preferredHairdresser);
   const serviceDetails = await serviceService.getServiceById(appointment.serviceType);
 
-  if (req.body.status === 'Cancelled' && appointment.email) {
-    // Send cancellation email
-    await emailService.sendAppointmentEmail('cancellation', appointment.email, appointment, barberDetails, serviceDetails);
-  } else if (appointment.email) {
-    // Send update email if appointment status is not cancelled
-    await emailService.sendAppointmentEmail('update', appointment.email, appointment, barberDetails, serviceDetails);
-  } else {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Email address is required for appointment updates');
+  let notificationType = 'update';
+  let type = 'Update';
+
+  if (req.body.status === 'Cancelled') {
+    notificationType = 'cancellation';
+    type = 'Cancellation';
+  } else if (req.body.status === 'Past') {
+    notificationType = 'feedback';
+    type = 'Feedback';
   }
+
+  await sendAppointmentNotificationToUser({
+    userId: appointment.userId,
+    type,
+    appointmentDetails: appointment,
+    barberDetails,
+    serviceDetails,
+    notificationType,
+  });
 
   res.send(appointment);
 });
