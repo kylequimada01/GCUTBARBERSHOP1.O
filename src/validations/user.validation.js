@@ -12,6 +12,9 @@ const createUser = {
     title: Joi.string().optional(),
     image: Joi.string().optional().uri(),
     selectedUserId: Joi.string().optional(),
+    pushNotificationsEnabled: Joi.boolean().optional(),
+    emailNotificationsEnabled: Joi.boolean().optional(),
+    pushSubscription: Joi.object().optional(),
   }),
 };
 
@@ -46,6 +49,9 @@ const updateUser = {
       title: Joi.string(),
       image: Joi.string().uri(),
       selectedUserId: Joi.string(),
+      pushNotificationsEnabled: Joi.boolean(),
+      emailNotificationsEnabled: Joi.boolean(),
+      pushSubscription: Joi.object(),
     })
     .min(1),
 };

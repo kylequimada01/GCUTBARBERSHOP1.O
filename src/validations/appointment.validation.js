@@ -51,6 +51,8 @@ const getAppointments = {
     serviceType: Joi.string().custom(objectId),
     userId: Joi.string().custom(objectId),
     status: Joi.string().valid('Upcoming', 'Past', 'Cancelled'),
+    page: Joi.number().integer().min(1),
+    limit: Joi.number().integer().min(1),
   }),
 };
 
