@@ -7,11 +7,6 @@ const sendAppointmentNotificationToUser = catchAsync(async (params) => {
   const { userId, type, appointmentDetails, barberDetails, serviceDetails, notificationType } = params;
   const user = await getUserById(userId);
 
-  // console.log(`Sending notification to user: ${userId}`);
-  // console.log(`User email notifications enabled: ${user.emailNotificationsEnabled}`);
-  // console.log(`User push notifications enabled: ${user.pushNotificationsEnabled}`);
-  // console.log(`User push subscription: ${user.pushSubscription}`);
-
   if (user.emailNotificationsEnabled) {
     await sendAppointmentEmail(notificationType, user.email, appointmentDetails, barberDetails, serviceDetails);
   }
@@ -22,6 +17,22 @@ const sendAppointmentNotificationToUser = catchAsync(async (params) => {
   }
 });
 
+const sendAppointmentNotificationToBarber = catchAsync(async (params) => {
+  const { barberId, type, appointmentDetails, serviceDetails, notificationType } = params;
+  const barber = await getUserById(barberId);
+
+  if (barber.emailNotificationsEnabled) {
+    // Pass the correct name for the barber to the email service
+    await sendAppointmentEmail(notificationType, barber.email, appointmentDetails, barber, serviceDetails, true);
+  }
+
+  if (barber.pushNotificationsEnabled && barber.pushSubscription) {
+    const payload = prepareNotificationPayload(type, appointmentDetails);
+    await sendPushNotification(barber.pushSubscription, payload);
+  }
+});
+
 module.exports = {
   sendAppointmentNotificationToUser,
+  sendAppointmentNotificationToBarber,
 };

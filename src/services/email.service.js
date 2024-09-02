@@ -12,32 +12,15 @@ if (config.env !== 'test') {
     .catch(() => logger.warn('Unable to connect to email server. Make sure you have configured the SMTP options in .env'));
 }
 
-/**
- * Send an email
- * @param {string} to
- * @param {string} subject
- * @param {string} html
- * @returns {Promise<void>}
- */
 const sendEmail = async (to, subject, html) => {
   const msg = { from: config.email.from, to, subject, html };
   await transport.sendMail(msg);
 };
 
-/**
- * Format the appointment date and time
- * @param {Date} dateTime
- * @returns {string}
- */
 const formatDateTime = (dateTime) => dayjs(dateTime).format('dddd, MMMM D, YYYY h:mm A');
 
-/**
- * Generate the action link based on the email type
- * @param {string} type
- * @returns {string}
- */
 const generateActionLink = (type) => {
-  if (type === 'confirmation' || type === 'update') {
+  if (type === 'confirmation' || type === 'update' || type === 'new_appointment' || type === 'appointment_updated') {
     return `<a href="https://appointment-management-fe.vercel.app/appointments" style="display: inline-block; padding: 10px 20px; background-color: #AF8447; color: #fff; text-decoration: none;">View Appointments</a>`;
   }
   if (type === 'feedback') {
@@ -46,12 +29,11 @@ const generateActionLink = (type) => {
   return '';
 };
 
-/**
- * Generate the closing message based on the email type
- * @param {string} type
- * @returns {string}
- */
-const generateClosingMessage = (type) => {
+const generateClosingMessage = (type, isBarber) => {
+  if (isBarber) {
+    return 'Please view all your appointments.';
+  }
+
   switch (type) {
     case 'cancellation':
       return 'We hope to see you soon for a rescheduled appointment.';
@@ -62,18 +44,14 @@ const generateClosingMessage = (type) => {
   }
 };
 
-/**
- * Generate the HTML content for the appointment email
- * @param {string} type
- * @param {Object} appointmentDetails
- * @param {Object} barberDetails
- * @param {Object} serviceDetails
- * @returns {string}
- */
-const generateAppointmentEmailHtml = (type, appointmentDetails, barberDetails, serviceDetails) => {
+const generateAppointmentEmailHtml = (type, appointmentDetails, recipientDetails, serviceDetails, isBarber) => {
   const formattedDateTime = formatDateTime(appointmentDetails.appointmentDateTime);
   const actionLink = generateActionLink(type);
-  const closingMessage = generateClosingMessage(type);
+
+  // Use the correct name based on whether the recipient is a barber or a user
+  const recipientName = isBarber
+    ? `${recipientDetails.firstName} ${recipientDetails.lastName}`
+    : `${appointmentDetails.firstName} ${appointmentDetails.lastName}`;
 
   const emailTypes = {
     confirmation: {
@@ -94,6 +72,14 @@ const generateAppointmentEmailHtml = (type, appointmentDetails, barberDetails, s
       message:
         'Your appointment has passed. We would love to hear your feedback on the service provided. Please consider leaving a review:',
     },
+    new_appointment: {
+      title: 'New Appointment - Barbershop',
+      message: `A new appointment has been booked by ${appointmentDetails.firstName} ${appointmentDetails.lastName}. Here are the details:`,
+    },
+    appointment_updated: {
+      title: 'Appointment Updated - Barbershop',
+      message: `An appointment has been updated by ${appointmentDetails.firstName} ${appointmentDetails.lastName}. Here are the details:`,
+    },
   };
 
   const { title, message } = emailTypes[type];
@@ -101,41 +87,42 @@ const generateAppointmentEmailHtml = (type, appointmentDetails, barberDetails, s
   return `
     <div style="font-family: Arial, sans-serif; color: #333;">
       <h2>${title}</h2>
-      <p>Dear ${appointmentDetails.firstName} ${appointmentDetails.lastName},</p>
+      <p>Dear ${recipientName},</p>
       <p>${message}</p>
       <ul>
         <li><strong>Date & Time:</strong> ${formattedDateTime}</li>
-        <li><strong>Barber:</strong> ${barberDetails.firstName} ${barberDetails.lastName}</li>
         <li><strong>Service:</strong> ${serviceDetails.title}</li>
         <li><strong>Contact Number:</strong> ${appointmentDetails.contactNumber}</li>
       </ul>
       ${actionLink}
-      <p>${closingMessage}</p>
+      <p>${generateClosingMessage(type, isBarber)}</p>
     </div>
   `;
 };
 
-/**
- * Send appointment-related emails
- * @param {string} type
- * @param {string} to
- * @param {Object} appointmentDetails
- * @param {Object} barberDetails
- * @param {Object} serviceDetails
- * @returns {Promise<void>}
- */
-const sendAppointmentEmail = async (type, to, appointmentDetails, barberDetails, serviceDetails) => {
-  const subject = `Appointment ${type.charAt(0).toUpperCase() + type.slice(1)}`;
-  const html = generateAppointmentEmailHtml(type, appointmentDetails, barberDetails, serviceDetails);
+const sendAppointmentEmail = async (type, to, appointmentDetails, recipientDetails, serviceDetails, isBarber = false) => {
+  let subject;
+
+  // Determine the subject based on the type
+  switch (type) {
+    case 'appointment_updated':
+      subject = 'Barbershop Appointment Updated';
+      break;
+    case 'new_appointment':
+      subject = 'New Barbershop Appointment';
+      break;
+    default:
+      subject = `Barbershop Appointment ${type.charAt(0).toUpperCase() + type.slice(1)}`;
+      break;
+  }
+
+  // Generate the HTML content
+  const html = generateAppointmentEmailHtml(type, appointmentDetails, recipientDetails, serviceDetails, isBarber);
+
+  // Send the email
   await sendEmail(to, subject, html);
 };
 
-/**
- * Send reset password email
- * @param {string} to
- * @param {string} token
- * @returns {Promise<void>}
- */
 const sendResetPasswordEmail = async (to, token) => {
   const subject = 'Reset password';
   const resetPasswordUrl = `https://appointment-management-fe.vercel.app/reset-password?token=${token}`;
@@ -145,12 +132,6 @@ If you did not request any password resets, then ignore this email.`;
   await sendEmail(to, subject, text);
 };
 
-/**
- * Send verification email
- * @param {string} to
- * @param {string} token
- * @returns {Promise<void>}
- */
 const sendVerificationEmail = async (to, token) => {
   const subject = 'Email Verification';
   const verificationEmailUrl = `https://appointment-management-fe.vercel.app/verify-email?token=${token}`;

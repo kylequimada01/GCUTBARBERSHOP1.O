@@ -15,21 +15,26 @@ const sendPushNotification = async (subscription, payload) => {
 
 const prepareNotificationPayload = (type, appointmentDetails) => {
   const formattedDateTime = dayjs(appointmentDetails.appointmentDateTime).format('dddd, MMMM D, YYYY h:mm A');
-  const lowerCaseType = type.toLowerCase(); // Ensure the type is in lowercase
+  const lowerCaseType = type.toLowerCase();
 
   let title = `Appointment ${lowerCaseType}`;
   let body = `Your appointment on ${formattedDateTime} has been ${lowerCaseType}.`;
 
-  // Customize message for feedback request
   if (type === 'feedback') {
     title = `Appointment Feedback Request`;
     body = `Your appointment on ${formattedDateTime} has passed. We would love to hear your feedback on the service provided. Please consider leaving a review.`;
+  } else if (type === 'new') {
+    title = `New Appointment Scheduled`;
+    body = `A new appointment has been scheduled for ${formattedDateTime}.`;
+  } else if (type === 'user_updated' || type === 'barber_updated') {
+    title = `Appointment Updated`;
+    body = `An appointment on ${formattedDateTime} has been updated.`;
   }
 
   return {
     title,
     body,
-    icon: '/android/android-launchericon-192-192.png', // Handle this icon path on the front-end
+    icon: '/android/android-launchericon-192-192.png',
     data: appointmentDetails,
   };
 };
