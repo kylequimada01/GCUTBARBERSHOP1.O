@@ -13,7 +13,7 @@ const createAppointment = catchAsync(async (req, res) => {
 
   await sendAppointmentNotificationToUser({
     userId: appointment.userId,
-    type: 'Confirmation',
+    type: 'confirmed',
     appointmentDetails: appointment,
     barberDetails,
     serviceDetails,
@@ -24,7 +24,34 @@ const createAppointment = catchAsync(async (req, res) => {
 });
 
 const getAppointments = catchAsync(async (req, res) => {
-  const result = await appointmentService.queryAppointments(req.query, {});
+  // Extract the pagination and other query parameters manually
+  const filter = {
+    userId: req.query.userId,
+    preferredHairdresser: req.query.preferredHairdresser,
+    serviceCategory: req.query.serviceCategory,
+    serviceType: req.query.serviceType,
+    status: req.query.status,
+  };
+
+  // Remove undefined values from the filter object
+  Object.keys(filter).forEach((key) => {
+    if (filter[key] === undefined) {
+      delete filter[key];
+    }
+  });
+
+  // Extract pagination options and remove them from the filter
+  const options = {
+    sortBy: req.query.sortBy,
+    populate: req.query.populate,
+    page: parseInt(req.query.page, 10) || 1,
+    limit: parseInt(req.query.limit, 10) || 10,
+  };
+
+  // Call the service method with the extracted filter and options
+  const result = await appointmentService.queryAppointments(filter, options);
+
+  // Send the result back to the client
   res.send(result);
 });
 
@@ -43,14 +70,14 @@ const updateAppointment = catchAsync(async (req, res) => {
   const serviceDetails = await serviceService.getServiceById(appointment.serviceType);
 
   let notificationType = 'update';
-  let type = 'Update';
+  let type = 'updated'; // Use a proper notification type in lowercase
 
   if (req.body.status === 'Cancelled') {
     notificationType = 'cancellation';
-    type = 'Cancellation';
+    type = 'cancelled'; // Use a proper notification type in lowercase
   } else if (req.body.status === 'Past') {
     notificationType = 'feedback';
-    type = 'Feedback';
+    type = 'feedback'; // For feedback, use 'feedback'
   }
 
   await sendAppointmentNotificationToUser({

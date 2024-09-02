@@ -6,8 +6,15 @@ const createAppointment = async (appointmentBody) => {
   return Appointment.create(appointmentBody);
 };
 
-const queryAppointments = async (filter, options) => {
-  const appointments = await Appointment.paginate(filter, options);
+const queryAppointments = async (filter, options = {}) => {
+  const paginationOptions = {
+    page: options.page || 1,
+    limit: options.limit || 10,
+    sortBy: options.sortBy,
+    populate: options.populate,
+  };
+
+  const appointments = await Appointment.paginate(filter, paginationOptions);
   return appointments;
 };
 
